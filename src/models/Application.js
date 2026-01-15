@@ -16,12 +16,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     userId: {
       type: DataTypes.UUID,
-      allowNull: false,
-      field: 'user_id',
-      references: {
-        model: 'users',
-        key: 'id'
-      }
+      allowNull: true,
+      field: 'user_id'
     },
     status: {
       type: DataTypes.ENUM('pending', 'review', 'background', 'approved', 'rejected'),
@@ -378,7 +374,9 @@ module.exports = (sequelize, DataTypes) => {
   Application.associate = function(models) {
     Application.belongsTo(models.User, {
       foreignKey: 'user_id',
-      as: 'user'
+      as: 'user',
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE'
     });
   };
 

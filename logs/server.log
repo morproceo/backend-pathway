@@ -1,0 +1,92 @@
+Executing (default): SELECT 1+1 AS result
+Database connected successfully
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'users' AND TABLE_SCHEMA = 'jrml_trucking'
+Executing (default): SHOW FULL COLUMNS FROM `users`;
+Executing (default): SELECT CONSTRAINT_NAME as constraint_name,CONSTRAINT_NAME as constraintName,CONSTRAINT_SCHEMA as constraintSchema,CONSTRAINT_SCHEMA as constraintCatalog,TABLE_NAME as tableName,TABLE_SCHEMA as tableSchema,TABLE_SCHEMA as tableCatalog,COLUMN_NAME as columnName,REFERENCED_TABLE_SCHEMA as referencedTableSchema,REFERENCED_TABLE_SCHEMA as referencedTableCatalog,REFERENCED_TABLE_NAME as referencedTableName,REFERENCED_COLUMN_NAME as referencedColumnName FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE where TABLE_NAME = 'users' AND CONSTRAINT_NAME!='PRIMARY' AND CONSTRAINT_SCHEMA='jrml_trucking' AND REFERENCED_TABLE_NAME IS NOT NULL;
+Executing (default): ALTER TABLE `users` CHANGE `email` `email` VARCHAR(255) NOT NULL UNIQUE;
+Executing (default): ALTER TABLE `users` CHANGE `password` `password` VARCHAR(255) NOT NULL;
+Executing (default): ALTER TABLE `users` CHANGE `first_name` `first_name` VARCHAR(100) NOT NULL;
+Executing (default): ALTER TABLE `users` CHANGE `last_name` `last_name` VARCHAR(100) NOT NULL;
+Executing (default): ALTER TABLE `users` CHANGE `phone` `phone` VARCHAR(20);
+Executing (default): ALTER TABLE `users` CHANGE `role` `role` ENUM('driver', 'admin') DEFAULT 'driver';
+Executing (default): ALTER TABLE `users` CHANGE `is_active` `is_active` TINYINT(1) DEFAULT true;
+Executing (default): ALTER TABLE `users` CHANGE `last_login_at` `last_login_at` DATETIME;
+Executing (default): ALTER TABLE `users` CHANGE `created_at` `created_at` DATETIME NOT NULL;
+Executing (default): ALTER TABLE `users` CHANGE `updated_at` `updated_at` DATETIME NOT NULL;
+Executing (default): SHOW INDEX FROM `users` FROM `jrml_trucking`
+Executing (default): SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME = 'applications' AND TABLE_SCHEMA = 'jrml_trucking'
+Executing (default): SHOW FULL COLUMNS FROM `applications`;
+Executing (default): SELECT CONSTRAINT_NAME as constraint_name,CONSTRAINT_NAME as constraintName,CONSTRAINT_SCHEMA as constraintSchema,CONSTRAINT_SCHEMA as constraintCatalog,TABLE_NAME as tableName,TABLE_SCHEMA as tableSchema,TABLE_SCHEMA as tableCatalog,COLUMN_NAME as columnName,REFERENCED_TABLE_SCHEMA as referencedTableSchema,REFERENCED_TABLE_SCHEMA as referencedTableCatalog,REFERENCED_TABLE_NAME as referencedTableName,REFERENCED_COLUMN_NAME as referencedColumnName FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE where TABLE_NAME = 'applications' AND CONSTRAINT_NAME!='PRIMARY' AND CONSTRAINT_SCHEMA='jrml_trucking' AND REFERENCED_TABLE_NAME IS NOT NULL;
+Executing (default): ALTER TABLE `applications` CHANGE `application_id` `application_id` VARCHAR(20) UNIQUE;
+Executing (default): SELECT CONSTRAINT_CATALOG AS constraintCatalog, CONSTRAINT_NAME AS constraintName, CONSTRAINT_SCHEMA AS constraintSchema, CONSTRAINT_TYPE AS constraintType, TABLE_NAME AS tableName, TABLE_SCHEMA AS tableSchema from INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE table_name='applications' AND constraint_name = 'applications_ibfk_1' AND TABLE_SCHEMA = 'jrml_trucking';
+Executing (default): ALTER TABLE `applications` DROP FOREIGN KEY `applications_ibfk_1`;
+Executing (default): ALTER TABLE `applications` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+Executing (default): ALTER TABLE `applications` CHANGE `status` `status` ENUM('pending', 'review', 'background', 'approved', 'rejected') DEFAULT 'pending';
+Executing (default): ALTER TABLE `applications` CHANGE `position` `position` ENUM('OO', 'LO') NOT NULL COMMENT 'OO = Owner Operator, LO = Lease Operator';
+Executing (default): ALTER TABLE `applications` CHANGE `first_name` `first_name` VARCHAR(100) NOT NULL;
+Executing (default): ALTER TABLE `applications` CHANGE `last_name` `last_name` VARCHAR(100) NOT NULL;
+Executing (default): ALTER TABLE `applications` CHANGE `email` `email` VARCHAR(255) NOT NULL;
+Executing (default): ALTER TABLE `applications` CHANGE `phone` `phone` VARCHAR(20) NOT NULL;
+Executing (default): ALTER TABLE `applications` CHANGE `date_of_birth` `date_of_birth` DATE;
+Executing (default): ALTER TABLE `applications` CHANGE `ssn` `ssn` VARCHAR(20) COMMENT 'Social Security Number - encrypted';
+Executing (default): ALTER TABLE `applications` CHANGE `start_date` `start_date` DATE COMMENT 'Earliest available start date';
+Executing (default): ALTER TABLE `applications` CHANGE `street_address` `street_address` VARCHAR(255);
+Executing (default): ALTER TABLE `applications` CHANGE `city` `city` VARCHAR(100);
+Executing (default): ALTER TABLE `applications` CHANGE `state` `state` VARCHAR(50);
+Executing (default): ALTER TABLE `applications` CHANGE `zip_code` `zip_code` VARCHAR(20);
+Executing (default): ALTER TABLE `applications` CHANGE `cdl_number` `cdl_number` VARCHAR(50);
+Executing (default): ALTER TABLE `applications` CHANGE `cdl_state` `cdl_state` VARCHAR(50);
+Executing (default): ALTER TABLE `applications` CHANGE `cdl_class` `cdl_class` VARCHAR(10);
+Executing (default): ALTER TABLE `applications` CHANGE `license_expiration` `license_expiration` DATE;
+Executing (default): ALTER TABLE `applications` CHANGE `endorsements` `endorsements` JSON COMMENT 'Array of endorsements like Hazmat, Tanker, Doubles';
+Executing (default): ALTER TABLE `applications` CHANGE `has_twic` `has_twic` TINYINT(1);
+Executing (default): ALTER TABLE `applications` CHANGE `twic_expiration` `twic_expiration` DATE;
+Executing (default): ALTER TABLE `applications` CHANGE `years_experience` `years_experience` INTEGER;
+Executing (default): ALTER TABLE `applications` CHANGE `has_accidents` `has_accidents` TINYINT(1);
+Executing (default): ALTER TABLE `applications` CHANGE `accident_details` `accident_details` TEXT;
+Executing (default): ALTER TABLE `applications` CHANGE `has_violations` `has_violations` TINYINT(1);
+Executing (default): ALTER TABLE `applications` CHANGE `violation_details` `violation_details` TEXT;
+Executing (default): ALTER TABLE `applications` CHANGE `has_dui` `has_dui` TINYINT(1);
+Executing (default): ALTER TABLE `applications` CHANGE `dui_details` `dui_details` TEXT;
+Executing (default): ALTER TABLE `applications` CHANGE `employer1_name` `employer1_name` VARCHAR(255);
+Executing (default): ALTER TABLE `applications` CHANGE `employer1_phone` `employer1_phone` VARCHAR(20);
+Executing (default): ALTER TABLE `applications` CHANGE `employer1_position` `employer1_position` VARCHAR(100);
+Executing (default): ALTER TABLE `applications` CHANGE `employer1_start_date` `employer1_start_date` DATE;
+Executing (default): ALTER TABLE `applications` CHANGE `employer1_end_date` `employer1_end_date` DATE;
+Executing (default): ALTER TABLE `applications` CHANGE `employer1_reason_leaving` `employer1_reason_leaving` TEXT;
+Executing (default): ALTER TABLE `applications` CHANGE `employer2_name` `employer2_name` VARCHAR(255);
+Executing (default): ALTER TABLE `applications` CHANGE `employer2_phone` `employer2_phone` VARCHAR(20);
+Executing (default): ALTER TABLE `applications` CHANGE `employer2_position` `employer2_position` VARCHAR(100);
+Executing (default): ALTER TABLE `applications` CHANGE `employer2_start_date` `employer2_start_date` DATE;
+Executing (default): ALTER TABLE `applications` CHANGE `employer2_end_date` `employer2_end_date` DATE;
+Executing (default): ALTER TABLE `applications` CHANGE `employer2_reason_leaving` `employer2_reason_leaving` TEXT;
+Executing (default): ALTER TABLE `applications` CHANGE `has_own_truck` `has_own_truck` TINYINT(1);
+Executing (default): ALTER TABLE `applications` CHANGE `truck_year` `truck_year` VARCHAR(4);
+Executing (default): ALTER TABLE `applications` CHANGE `truck_make` `truck_make` VARCHAR(100);
+Executing (default): ALTER TABLE `applications` CHANGE `truck_model` `truck_model` VARCHAR(100);
+Executing (default): ALTER TABLE `applications` CHANGE `truck_vin` `truck_vin` VARCHAR(50);
+Executing (default): ALTER TABLE `applications` CHANGE `has_trailer` `has_trailer` TINYINT(1);
+Executing (default): ALTER TABLE `applications` CHANGE `trailer_type` `trailer_type` VARCHAR(100);
+Executing (default): ALTER TABLE `applications` CHANGE `trailer_length` `trailer_length` VARCHAR(20);
+Executing (default): ALTER TABLE `applications` CHANGE `ref1_name` `ref1_name` VARCHAR(255);
+Executing (default): ALTER TABLE `applications` CHANGE `ref1_phone` `ref1_phone` VARCHAR(20);
+Executing (default): ALTER TABLE `applications` CHANGE `ref1_relationship` `ref1_relationship` VARCHAR(100);
+Executing (default): ALTER TABLE `applications` CHANGE `ref2_name` `ref2_name` VARCHAR(255);
+Executing (default): ALTER TABLE `applications` CHANGE `ref2_phone` `ref2_phone` VARCHAR(20);
+Executing (default): ALTER TABLE `applications` CHANGE `ref2_relationship` `ref2_relationship` VARCHAR(100);
+Executing (default): ALTER TABLE `applications` CHANGE `certify_true` `certify_true` TINYINT(1);
+Executing (default): ALTER TABLE `applications` CHANGE `authorize_contact` `authorize_contact` TINYINT(1);
+Executing (default): ALTER TABLE `applications` CHANGE `electronic_signature` `electronic_signature` VARCHAR(255);
+Executing (default): ALTER TABLE `applications` CHANGE `documents` `documents` JSON COMMENT 'Array of uploaded document references';
+Executing (default): ALTER TABLE `applications` CHANGE `ghl_contact_id` `ghl_contact_id` VARCHAR(100);
+Executing (default): ALTER TABLE `applications` CHANGE `ghl_synced_at` `ghl_synced_at` DATETIME;
+Executing (default): ALTER TABLE `applications` CHANGE `admin_notes` `admin_notes` TEXT;
+Executing (default): ALTER TABLE `applications` CHANGE `reviewed_by` `reviewed_by` CHAR(36) BINARY;
+Executing (default): ALTER TABLE `applications` CHANGE `reviewed_at` `reviewed_at` DATETIME;
+Executing (default): ALTER TABLE `applications` CHANGE `submitted_at` `submitted_at` DATETIME;
+Executing (default): ALTER TABLE `applications` CHANGE `created_at` `created_at` DATETIME NOT NULL;
+Executing (default): ALTER TABLE `applications` CHANGE `updated_at` `updated_at` DATETIME NOT NULL;
+Executing (default): SHOW INDEX FROM `applications` FROM `jrml_trucking`
+Database models synced
+Server running on port 5001
+Environment: development

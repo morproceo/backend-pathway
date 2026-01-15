@@ -14,13 +14,13 @@ module.exports = {
       },
       user_id: {
         type: Sequelize.UUID,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'users',
           key: 'id'
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'SET NULL'
       },
       status: {
         type: Sequelize.ENUM('pending', 'review', 'background', 'approved', 'rejected'),
