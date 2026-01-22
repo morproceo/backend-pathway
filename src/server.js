@@ -174,11 +174,9 @@ async function startServer() {
     await db.sequelize.authenticate();
     console.log('Database connected successfully');
 
-    // Sync models (in development)
-    if (process.env.NODE_ENV === 'development') {
-      await db.sequelize.sync({ alter: true });
-      console.log('Database models synced');
-    }
+    // Sync models to create tables if they don't exist
+    await db.sequelize.sync({ alter: true });
+    console.log('Database models synced');
   } catch (error) {
     console.warn('Database connection failed, running in webhook-only mode:', error.message);
     console.warn('Applications will be sent to GoHighLevel but not stored locally.');
