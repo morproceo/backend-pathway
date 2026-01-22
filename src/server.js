@@ -31,8 +31,12 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static frontend files from React build
-const frontendPath = path.join(__dirname, '../../frontend-react/dist');
+// Serve static frontend files
+// In production, serve the React build from frontend-react/dist
+// In development, React runs on its own dev server (port 3000)
+const frontendPath = process.env.NODE_ENV === 'production'
+  ? path.join(__dirname, '../../frontend-react/dist')
+  : path.join(__dirname, '../../frontend');
 app.use(express.static(frontendPath));
 
 // Routes
@@ -126,7 +130,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// For non-API routes, serve index.html (React SPA routing)
+// For non-API routes, serve the frontend
 app.get('*', (req, res) => {
   // If it's an API route that wasn't matched, return 404 JSON
   if (req.path.startsWith('/api/')) {
@@ -135,8 +139,33 @@ app.get('*', (req, res) => {
       message: 'API route not found'
     });
   }
-  // React SPA - always serve index.html for client-side routing
-  res.sendFile(path.join(frontendPath, 'index.html'));
+
+  // In production (React SPA), always serve index.html for client-side routing
+  if (process.env.NODE_ENV === 'production') {
+    return res.sendFile(path.join(frontendPath, 'index.html'));
+  }
+
+  // In development with old frontend, try to serve specific HTML files
+  let filePath = req.path;
+
+  // Remove trailing slash and add .html if needed
+  if (filePath.endsWith('/')) {
+    filePath = filePath.slice(0, -1);
+  }
+
+  // If no extension, try .html
+  if (!path.extname(filePath)) {
+    filePath += '.html';
+  }
+
+  const fullPath = path.join(frontendPath, filePath);
+
+  // Check if file exists, otherwise serve index.html
+  res.sendFile(fullPath, (err) => {
+    if (err) {
+      res.sendFile(path.join(frontendPath, 'index.html'));
+    }
+  });
 });
 
 // Database connection and server start
