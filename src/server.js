@@ -12,6 +12,8 @@ const PORT = process.env.PORT || 5001;
 const allowedOrigins = [
   'https://www.jrmlgroup.com',
   'https://jrmlgroup.com',
+  'https://www.pathwaytransportationcorp.com',
+  'https://pathwaytransportationcorp.com',
   'http://localhost:3000',
   'http://localhost:5001',
   'http://localhost:5173'
