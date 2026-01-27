@@ -194,6 +194,46 @@ router.post('/', validateApplication, async (req, res) => {
   }
 });
 
+// GET /api/applications/my-status - Get application status for logged-in user
+const { authenticateToken } = require('../middleware/auth');
+
+router.get('/my-status', authenticateToken, async (req, res) => {
+  try {
+    if (dbAvailable && Application) {
+      // Find the most recent application for this user
+      const application = await Application.findOne({
+        where: { userId: req.user.id },
+        order: [['submittedAt', 'DESC']]
+      });
+
+      if (application) {
+        return res.json({
+          success: true,
+          data: {
+            applicationId: application.applicationId,
+            status: application.status,
+            submittedAt: application.submittedAt,
+            position: application.position
+          }
+        });
+      }
+    }
+
+    // No application found for this user
+    res.json({
+      success: true,
+      data: null,
+      message: 'No application found for this user'
+    });
+  } catch (error) {
+    console.error('Get my application status error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to get application status'
+    });
+  }
+});
+
 // GET /api/applications/status/:id - Get application status (no auth required for demo)
 router.get('/status/:id', async (req, res) => {
   try {
