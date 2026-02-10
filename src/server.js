@@ -47,12 +47,14 @@ const applicationRoutes = require('./routes/applications');
 const adminRoutes = require('./routes/admin');
 const uploadRoutes = require('./routes/uploads');
 const companyDocumentRoutes = require('./routes/companyDocuments');
+const smsConsentRoutes = require('./routes/smsConsent');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/company-documents', companyDocumentRoutes);
+app.use('/api/sms-consent', smsConsentRoutes);
 
 // Signatures endpoint - receives signed documents from driver portal
 app.post('/api/signatures', async (req, res) => {
