@@ -12,7 +12,8 @@ try {
   console.warn('SmsConsent model not available, running in log-only mode');
 }
 
-const CONSENT_TEXT = 'I agree to receive SMS messages from Pathway Transportation Corp regarding appointment confirmations, reminders, and service notifications. Message and data rates may apply. Reply STOP to opt out at any time.';
+const CONSENT_TEXT = 'I consent to receive transactional messages from Pathway Transportation Corp at the phone number provided. Message frequency may vary. Message & Data rates may apply. Reply HELP for help or STOP to opt-out.';
+const MARKETING_CONSENT_TEXT = 'I consent to receive marketing and promotional messages from Pathway Transportation Corp at the phone number provided. Message frequency may vary. Message & Data rates may apply. Reply HELP for help or STOP to opt-out.';
 
 // Validation
 const validateConsent = [
@@ -33,7 +34,7 @@ router.post('/', validateConsent, async (req, res) => {
       });
     }
 
-    const { fullName, phone, email, reason, pageUrl } = req.body;
+    const { fullName, phone, email, reason, pageUrl, marketingOptIn } = req.body;
     const consentTimestamp = new Date();
     const ipAddress = req.headers['x-forwarded-for'] || req.ip;
 
@@ -46,7 +47,9 @@ router.post('/', validateConsent, async (req, res) => {
       ipAddress,
       pageUrl: pageUrl || null,
       consentText: CONSENT_TEXT,
-      smsConfirmationSent: false
+      smsConfirmationSent: false,
+      marketingOptIn: marketingOptIn === true,
+      marketingConsentText: marketingOptIn === true ? MARKETING_CONSENT_TEXT : null
     };
 
     // Save to database if available
@@ -64,6 +67,7 @@ router.post('/', validateConsent, async (req, res) => {
     console.log('Name:', fullName);
     console.log('Phone:', phone);
     console.log('Email:', email || 'N/A');
+    console.log('Marketing Opt-In:', marketingOptIn === true ? 'Yes' : 'No');
     console.log('IP:', ipAddress);
     console.log('Timestamp:', consentTimestamp.toISOString());
     console.log('============================');

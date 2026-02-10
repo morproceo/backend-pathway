@@ -48,6 +48,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
       field: 'sms_confirmation_sent'
+    },
+    marketingOptIn: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      field: 'marketing_opt_in'
+    },
+    marketingConsentText: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      field: 'marketing_consent_text'
     }
   }, {
     tableName: 'sms_consents',
