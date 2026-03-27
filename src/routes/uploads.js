@@ -785,24 +785,41 @@ router.post('/generate-lease-agreement', authenticateToken, async (req, res) => 
 router.post('/generate-driver-contract', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
-    const {
-      contractorName,
-      contractorAddress,
-      contractorCity,
-      contractorState,
-      contractorZip,
-      ssnLast4,
-      initials,
-      signatureData,
-      signatureType
-    } = req.body;
+    const body = req.body;
+    const contractorName = body.contractorName;
+    const contractorAddress = body.contractorAddress || body.address || '';
+    const contractorCity = body.contractorCity || body.city || '';
+    const contractorState = body.contractorState || body.state || '';
+    const contractorZip = body.contractorZip || body.zipCode || '';
+    const ssnLast4 = body.ssnLast4 || '****';
+    const signatureData = body.signatureData;
+    const signatureType = body.signatureType;
+    let initials = body.initials;
+    const initialedSections = body.initialedSections;
 
     // Validate required fields
-    if (!contractorName || !signatureData || !initials) {
+    if (!contractorName || !signatureData || (!initials && !initialedSections)) {
       return res.status(400).json({
         success: false,
         message: 'Contractor name, initials, and signature are required'
       });
+    }
+
+    // If initials is a string (e.g. "TW"), build the object from initialedSections
+    if (typeof initials === 'string' && Array.isArray(initialedSections)) {
+      const initialsStr = initials;
+      initials = {};
+      for (const sectionId of initialedSections) {
+        initials[sectionId] = initialsStr;
+      }
+    } else if (typeof initials === 'string') {
+      // Fallback: apply to all known section keys
+      const initialsStr = initials;
+      initials = {};
+      const allKeys = ['1','2','3','4','5','6','7','8','9','9.1','10','11','12','13','14','15','16','17','18','19','19.1','20','21a','21b','21c','21d','21e','21f','21g','21h','21i','21j','21k','21l','22','23','24','25'];
+      for (const key of allKeys) {
+        initials[key] = initialsStr;
+      }
     }
 
     // Get user info
@@ -817,11 +834,11 @@ router.post('/generate-driver-contract', authenticateToken, async (req, res) => 
     // Generate PDF
     const pdfBuffer = await generateDriverContractPDF({
       contractorName,
-      contractorAddress: contractorAddress || '',
-      contractorCity: contractorCity || '',
-      contractorState: contractorState || '',
-      contractorZip: contractorZip || '',
-      ssnLast4: ssnLast4 || '****',
+      contractorAddress,
+      contractorCity,
+      contractorState,
+      contractorZip,
+      ssnLast4,
       initials: initials || {},
       signatureData,
       signatureType,
@@ -976,10 +993,17 @@ function generateDriverContractPDF(data) {
         doc.moveDown(0.5);
       }
 
-      // ===== HEADER =====
-      doc.fontSize(16).fillColor('#000000').font('Helvetica-Bold')
-        .text('PATHWAY TRANSPORTATION', { align: 'center' });
-      doc.moveDown(0.2);
+      // ===== HEADER WITH LOGO =====
+      const logoPath = require('path').join(__dirname, '..', 'pathway_logo.png');
+      try {
+        doc.image(logoPath, (doc.page.width - 180) / 2, doc.y, { width: 180 });
+        doc.moveDown(3.5);
+      } catch (logoErr) {
+        // Fallback to text if logo not found
+        doc.fontSize(16).fillColor('#000000').font('Helvetica-Bold')
+          .text('PATHWAY TRANSPORTATION', { align: 'center' });
+        doc.moveDown(0.2);
+      }
       doc.fontSize(9).font('Helvetica').fillColor('#444444')
         .text('6844 JEFFERY AVE S COTTAGE GROVE, MN 55016-2333', { align: 'center' });
       doc.fontSize(9).text('MC#: 1592008  |  DOT#: 4148434', { align: 'center' });
@@ -1255,12 +1279,12 @@ function generateDriverContractPDF(data) {
           doc.image(signatureBuffer, doc.x, doc.y, { width: 200, height: 60 });
           doc.moveDown(3);
         } catch (e) {
-          doc.fontSize(16).font('Helvetica-Oblique').text(data.contractorName);
+          doc.fontSize(16).font('Helvetica-Oblique').fillColor('#000000').text(data.contractorName);
           doc.fontSize(10).font('Helvetica');
         }
       } else {
         // Typed signature
-        doc.fontSize(16).font('Helvetica-Oblique').text(data.signatureData || data.contractorName);
+        doc.fontSize(16).font('Helvetica-Oblique').fillColor('#000000').text(data.signatureData || data.contractorName);
         doc.fontSize(10).font('Helvetica');
       }
 
