@@ -25,6 +25,7 @@ const DOCUMENT_TYPES = {
   w9: 'W9 Form',
   authority: 'MC Authority',
   agreement: 'Lease Agreement',
+  driver_contract: 'Independent Contractor Driver Agreement',
   payment_info: 'Payment Information Authorization',
   other: 'Other Document'
 };
