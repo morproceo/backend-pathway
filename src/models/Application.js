@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     position: {
       type: DataTypes.ENUM('OO', 'LO', 'DR'),
       allowNull: false,
-      comment: 'OO = Owner Operator, LO = Lease Operator, DR = Driver'
+      comment: 'OO = Owner Operator, LO = Fleet Owner, DR = Driver'
     },
 
     // Personal Information
