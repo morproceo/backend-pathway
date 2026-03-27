@@ -749,6 +749,109 @@ router.delete('/applications/:id', async (req, res) => {
   }
 });
 
+// POST /api/admin/applications/:id/upload - Upload document on behalf of driver
+const multer = require('multer');
+const adminUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      'image/jpeg', 'image/png', 'image/gif',
+      'application/pdf', 'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Allowed: JPEG, PNG, GIF, PDF, DOC, DOCX'), false);
+    }
+  }
+});
+
+router.post('/applications/:id/upload', adminUpload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+
+    const { id } = req.params;
+    const { documentType } = req.body;
+
+    if (!documentType || !s3Service.DOCUMENT_TYPES[documentType]) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid document type',
+        validTypes: Object.keys(s3Service.DOCUMENT_TYPES)
+      });
+    }
+
+    // Find the application
+    const application = await Application.findOne({
+      where: { [Op.or]: [{ id }, { applicationId: id }] }
+    });
+
+    if (!application) {
+      return res.status(404).json({ success: false, message: 'Application not found' });
+    }
+
+    if (!application.userId) {
+      return res.status(400).json({ success: false, message: 'Application has no associated user' });
+    }
+
+    const userId = application.userId;
+
+    // Upload to S3
+    const result = await s3Service.uploadFile(
+      req.file.buffer,
+      userId,
+      documentType,
+      req.file.originalname,
+      req.file.mimetype
+    );
+
+    // Check if document of this type already exists
+    let document = await Document.findOne({ where: { userId, documentType } });
+
+    if (document) {
+      try { await s3Service.deleteFile(document.s3Key); } catch (e) {}
+      await document.update({
+        s3Key: result.key,
+        originalFilename: req.file.originalname,
+        mimeType: req.file.mimetype,
+        fileSize: req.file.size,
+        status: 'pending',
+        uploadedAt: new Date()
+      });
+    } else {
+      document = await Document.create({
+        userId,
+        documentType,
+        s3Key: result.key,
+        originalFilename: req.file.originalname,
+        mimeType: req.file.mimetype,
+        fileSize: req.file.size,
+        status: 'pending'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Document uploaded successfully',
+      data: {
+        id: document.id,
+        documentType,
+        documentTypeName: s3Service.DOCUMENT_TYPES[documentType],
+        key: result.key,
+        originalFilename: req.file.originalname,
+        uploadedAt: document.uploadedAt
+      }
+    });
+  } catch (error) {
+    console.error('Admin upload error:', error);
+    res.status(500).json({ success: false, message: 'Failed to upload document', error: error.message });
+  }
+});
+
 // PUT /api/admin/documents/:id/status - Update document verification status
 router.put('/documents/:id/status', async (req, res) => {
   try {
