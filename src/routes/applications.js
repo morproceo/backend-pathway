@@ -21,7 +21,7 @@ const validateApplication = [
   body('lastName').trim().notEmpty().withMessage('Last name is required'),
   body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
   body('phone').trim().notEmpty().withMessage('Phone is required'),
-  body('position').isIn(['OO', 'LO']).withMessage('Position must be OO or LO')
+  body('position').isIn(['OO', 'LO', 'DR']).withMessage('Position must be OO, LO, or DR')
 ];
 
 // POST /api/applications - Submit new application

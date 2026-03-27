@@ -110,7 +110,7 @@ function buildWebhookPayload(application) {
     // Application info
     application_id: application.applicationId,
     application_status: application.status || 'Pending',
-    position_type: application.position === 'OO' ? 'Owner Operator' : 'Lease Operator',
+    position_type: application.position === 'OO' ? 'Owner Operator' : application.position === 'LO' ? 'Lease Operator' : 'Driver',
     submitted_date: application.submittedAt,
 
     // Personal info (some are standard fields in GHL)
@@ -178,7 +178,7 @@ function buildWebhookPayload(application) {
     // Tags for workflow triggers
     tags: [
       'Driver Application',
-      application.position === 'OO' ? 'Owner Operator' : 'Lease Operator'
+      application.position === 'OO' ? 'Owner Operator' : application.position === 'LO' ? 'Lease Operator' : 'Driver'
     ].join(',')
   };
 }
@@ -208,7 +208,7 @@ async function createOrUpdateContact(application) {
       source: 'JRML Website Application',
       tags: [
         'Driver Application',
-        application.position === 'OO' ? 'Owner Operator' : 'Lease Operator',
+        application.position === 'OO' ? 'Owner Operator' : application.position === 'LO' ? 'Lease Operator' : 'Driver',
         `Status: ${application.status || 'Pending'}`
       ],
       customFields: buildCustomFields(application)
@@ -338,7 +338,7 @@ function buildCustomFields(application) {
 
   // Application info
   addField('application_id', application.applicationId);
-  addField('position_type', application.position === 'OO' ? 'Owner Operator' : 'Lease Operator');
+  addField('position_type', application.position === 'OO' ? 'Owner Operator' : application.position === 'LO' ? 'Lease Operator' : 'Driver');
   addField('application_status', application.status || 'Pending');
   addField('submitted_date', application.submittedAt);
 

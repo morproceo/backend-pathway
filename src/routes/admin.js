@@ -247,7 +247,8 @@ router.get('/stats', async (req, res) => {
       approvedCount,
       rejectedCount,
       ownerOperatorCount,
-      leaseOperatorCount
+      leaseOperatorCount,
+      driverCount
     ] = await Promise.all([
       Application.count(),
       Application.count({ where: { status: 'pending' } }),
@@ -256,7 +257,8 @@ router.get('/stats', async (req, res) => {
       Application.count({ where: { status: 'approved' } }),
       Application.count({ where: { status: 'rejected' } }),
       Application.count({ where: { position: 'OO' } }),
-      Application.count({ where: { position: 'LO' } })
+      Application.count({ where: { position: 'LO' } }),
+      Application.count({ where: { position: 'DR' } })
     ]);
 
     // Recent applications (last 7 days)
@@ -281,7 +283,8 @@ router.get('/stats', async (req, res) => {
         },
         byPosition: {
           ownerOperator: ownerOperatorCount,
-          leaseOperator: leaseOperatorCount
+          leaseOperator: leaseOperatorCount,
+          driver: driverCount
         },
         recentApplications: recentCount
       }
