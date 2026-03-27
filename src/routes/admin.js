@@ -696,6 +696,59 @@ router.get('/applications/:id/full', async (req, res) => {
   }
 });
 
+// DELETE /api/admin/applications/:id - Delete an application
+router.delete('/applications/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const application = await Application.findOne({
+      where: {
+        [Op.or]: [
+          { id },
+          { applicationId: id }
+        ]
+      }
+    });
+
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: 'Application not found'
+      });
+    }
+
+    // Delete associated documents from S3 and DB if user exists
+    if (application.userId) {
+      const documents = await Document.findAll({
+        where: { userId: application.userId }
+      });
+
+      for (const doc of documents) {
+        try {
+          await s3Service.deleteFile(doc.s3Key);
+        } catch (e) {
+          console.warn('Failed to delete S3 file:', doc.s3Key);
+        }
+      }
+
+      await Document.destroy({ where: { userId: application.userId } });
+    }
+
+    await application.destroy();
+
+    res.json({
+      success: true,
+      message: 'Application deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete application error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete application'
+    });
+  }
+});
+
 // PUT /api/admin/documents/:id/status - Update document verification status
 router.put('/documents/:id/status', async (req, res) => {
   try {
